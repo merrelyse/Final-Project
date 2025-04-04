@@ -2,10 +2,10 @@
 
 const soundCtx = new AudioContext();
 
-const masterGain = soundCtx.createGain();
-masterGain.gain.value = 1.0;
+const gainGate = soundCtx.createGain();
+gainGate.gain.value = 1.0;
 
-masterGain.connect(soundCtx.destination);
+gainGate.connect(soundCtx.destination);
 let sourceMM;
 const loadPlayAudioMM = async function () {
   const file1 = await fetch("Memory Machine.wav");
@@ -13,15 +13,11 @@ const loadPlayAudioMM = async function () {
   const audioBufferMM = await soundCtx.decodeAudioData(arrayBufferMM);
   sourceMM = soundCtx.createBufferSource();
   sourceMM.buffer = audioBufferMM;
-  sourceMM.connect(masterGain);
+  //sourceMM.connect(gainGate);
   sourceMM.start();
 };
 
-const stopAudioMM = function () {
-  sourceMM.stop();
-};
-
-masterGain.connect(soundCtx.destination);
+gainGate.connect(soundCtx.destination);
 let sourceB;
 const loadPlayAudioB = async function () {
   const file2 = await fetch("Being.wav");
@@ -29,15 +25,11 @@ const loadPlayAudioB = async function () {
   const audioBufferB = await soundCtx.decodeAudioData(arrayBufferB);
   sourceB = soundCtx.createBufferSource();
   sourceB.buffer = audioBufferB;
-  sourceB.connect(masterGain);
+  //sourceB.connect(gainGate);
   sourceB.start();
 };
 
-const stopAudioB = function () {
-  sourceB.stop();
-};
-
-masterGain.connect(soundCtx.destination);
+gainGate.connect(soundCtx.destination);
 let sourceOMW;
 const loadPlayAudioOMW = async function () {
   const file3 = await fetch("On My Way Home.wav");
@@ -45,15 +37,11 @@ const loadPlayAudioOMW = async function () {
   const audioBufferOMW = await soundCtx.decodeAudioData(arrayBufferOMW);
   sourceOMW = soundCtx.createBufferSource();
   sourceOMW.buffer = audioBufferOMW;
-  sourceOMW.connect(masterGain);
+  //sourceOMW.connect(gainGate);
   sourceOMW.start();
 };
 
-const stopAudioOMW = function () {
-  sourceOMW.stop();
-};
-
-masterGain.connect(soundCtx.destination);
+gainGate.connect(soundCtx.destination);
 let sourceE;
 const loadPlayAudioE = async function () {
   const file3 = await fetch("Everlasting.wav");
@@ -61,36 +49,118 @@ const loadPlayAudioE = async function () {
   const audioBufferE = await soundCtx.decodeAudioData(arrayBufferE);
   sourceE = soundCtx.createBufferSource();
   sourceE.buffer = audioBufferE;
-  sourceE.connect(masterGain);
+  //sourceE.connect(gainGate);
   sourceE.start();
 };
 
-const stopAudioE = function () {
-  sourceE.stop();
-};
+let onOffMM = false;
 
 document
-  .getElementById("start memory machine")
-  .addEventListener("click", loadPlayAudioMM);
-document
-  .getElementById("stop memory machine")
-  .addEventListener("click", stopAudioMM);
+  .getElementById("start/stop memory machine")
+  .addEventListener("click", (event) => {
+    if (soundCtx.state == "suspended") {
+      soundCtx.resume();
+      sourceMM.start();
+    }
+    let now = soundCtx.currentTime;
+
+    if (!onOffMM) {
+      gainGate.gain.setValueAtTime(gainGate.gain.value, now);
+      gainGate.gain.linearRampToValueAtTime(1, now + 0.05);
+
+      event.target.style.backgroundColor = "aqua";
+      event.target.innerText = "stop";
+      onOffMM = true;
+    } else {
+      gainGate.gain.setValueAtTime(gainGate.gain.value, now);
+      gainGate.gain.linearRampToValueAtTime(0, now + 0.05);
+
+      event.target.style.backgroundColor = "pink";
+      event.target.innerText = "start";
+      onOffMM = false;
+    }
+  });
+
+let onOffB = false;
 
 document
-  .getElementById("start being")
-  .addEventListener("click", loadPlayAudioB);
-document.getElementById("stop being").addEventListener("click", stopAudioB);
+  .getElementById("start/stop being")
+  .addEventListener("click", (event) => {
+    if (soundCtx.state == "suspended") {
+      soundCtx.resume();
+      sourceB.start();
+    }
+    let now = soundCtx.currentTime;
+
+    if (!onOffB) {
+      gainGate.gain.setValueAtTime(gainGate.gain.value, now);
+      gainGate.gain.linearRampToValueAtTime(1, now + 0.05);
+
+      event.target.style.backgroundColor = "aqua";
+      event.target.innerText = "stop";
+      onOffB = true;
+    } else {
+      gainGate.gain.setValueAtTime(gainGate.gain.value, now);
+      gainGate.gain.linearRampToValueAtTime(0, now + 0.05);
+
+      event.target.style.backgroundColor = "pink";
+      event.target.innerText = "start";
+      onOffB = false;
+    }
+  });
+
+let onOffOMW = false;
 
 document
-  .getElementById("start on my way home")
-  .addEventListener("click", loadPlayAudioOMW);
-document
-  .getElementById("stop on my way home")
-  .addEventListener("click", stopAudioOMW);
+  .getElementById("start/stop memory machine")
+  .addEventListener("click", (event) => {
+    if (soundCtx.state == "suspended") {
+      soundCtx.resume();
+      sourceOMW.start();
+    }
+    let now = soundCtx.currentTime;
+
+    if (!onOffOMW) {
+      gainGate.gain.setValueAtTime(gainGate.gain.value, now);
+      gainGate.gain.linearRampToValueAtTime(1, now + 0.05);
+
+      event.target.style.backgroundColor = "aqua";
+      event.target.innerText = "stop";
+      onOffOMW = true;
+    } else {
+      gainGate.gain.setValueAtTime(gainGate.gain.value, now);
+      gainGate.gain.linearRampToValueAtTime(0, now + 0.05);
+
+      event.target.style.backgroundColor = "pink";
+      event.target.innerText = "start";
+      onOffOMW = false;
+    }
+  });
+
+let onOffE = false;
 
 document
-  .getElementById("start everlasting")
-  .addEventListener("click", loadPlayAudioE);
-document
-  .getElementById("stop everlasting")
-  .addEventListener("click", stopAudioE);
+  .getElementById("start/stop memory machine")
+  .addEventListener("click", (event) => {
+    if (soundCtx.state == "suspended") {
+      soundCtx.resume();
+      sourceE.start();
+    }
+    let now = soundCtx.currentTime;
+
+    if (!onOffE) {
+      gainGate.gain.setValueAtTime(gainGate.gain.value, now);
+      gainGate.gain.linearRampToValueAtTime(1, now + 0.05);
+
+      event.target.style.backgroundColor = "aqua";
+      event.target.innerText = "stop";
+      onOffE = true;
+    } else {
+      gainGate.gain.setValueAtTime(gainGate.gain.value, now);
+      gainGate.gain.linearRampToValueAtTime(0, now + 0.05);
+
+      event.target.style.backgroundColor = "pink";
+      event.target.innerText = "start";
+      onOffE = false;
+    }
+  });
