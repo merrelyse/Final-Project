@@ -148,6 +148,25 @@ const loadPlayAudioE = async function () {
   detectBeatsE();
 };
 
+let currentlyPlaying = null;
+
+function stopAllExcept(trackToKeep) {
+  if (trackToKeep !== "memory-machine" && onOffMM) {
+    document.getElementById("start/stop memory machine").click();
+  }
+  if (trackToKeep !== "being" && onOffB) {
+    document.getElementById("start/stop being").click();
+  }
+  if (trackToKeep !== "on-my-way-home" && onOffOMW) {
+    document.getElementById("start/stop on my way home").click();
+  }
+  if (trackToKeep !== "everlasting" && onOffE) {
+    document.getElementById("start/stop everlasting").click();
+  }
+
+  currentlyPlaying = trackToKeep;
+}
+
 let onOffMM = false;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -167,6 +186,7 @@ document
     let now = soundCtx.currentTime;
 
     if (!onOffMM) {
+      stopAllExcept("memory-machine");
       sourceMM = soundCtx.createBufferSource();
       sourceMM.buffer = audioBufferMM;
       sourceMM.connect(gainGateMM);
@@ -180,6 +200,8 @@ document
       event.target.style.backgroundColor = "aqua";
       event.target.innerText = "stop memory machine";
       onOffMM = true;
+
+      setCurrentAnalyzer(analyserMM, "memory-machine");
     } else {
       gainGateMM.gain.setValueAtTime(gainGateMM.gain.value, now);
       gainGateMM.gain.linearRampToValueAtTime(0, now + 0.05);
@@ -190,6 +212,7 @@ document
 
       sourceMM.stop();
       sourceMM.disconnect();
+      stopVisualization();
     }
   });
 
@@ -204,6 +227,7 @@ document
     let now = soundCtx.currentTime;
 
     if (!onOffB) {
+      stopAllExcept("being");
       sourceB = soundCtx.createBufferSource();
       sourceB.buffer = audioBufferB;
       sourceB.connect(gainGateB);
@@ -217,6 +241,7 @@ document
       event.target.style.backgroundColor = "aqua";
       event.target.innerText = "stop being";
       onOffB = true;
+      setCurrentAnalyzer(analyserB, "being");
     } else {
       gainGateB.gain.setValueAtTime(gainGateB.gain.value, now);
       gainGateB.gain.linearRampToValueAtTime(0, now + 0.05);
@@ -227,6 +252,7 @@ document
 
       sourceB.stop();
       sourceB.disconnect();
+      stopVisualization();
     }
   });
 
@@ -241,6 +267,7 @@ document
     let now = soundCtx.currentTime;
 
     if (!onOffOMW) {
+      stopAllExcept("on-my-way-home");
       sourceOMW = soundCtx.createBufferSource();
       sourceOMW.buffer = audioBufferOMW;
       sourceOMW.connect(gainGateOMW);
@@ -254,6 +281,7 @@ document
       event.target.style.backgroundColor = "aqua";
       event.target.innerText = "stop on my way home";
       onOffOMW = true;
+      setCurrentAnalyzer(analyserOMW, "on-my-way-home");
     } else {
       gainGateOMW.gain.setValueAtTime(gainGateOMW.gain.value, now);
       gainGateOMW.gain.linearRampToValueAtTime(0, now + 0.05);
@@ -264,6 +292,7 @@ document
 
       sourceOMW.stop();
       sourceOMW.disconnect();
+      stopVisualization();
     }
   });
 
@@ -278,6 +307,7 @@ document
     let now = soundCtx.currentTime;
 
     if (!onOffE) {
+      stopAllExcept("everlasting");
       sourceE = soundCtx.createBufferSource();
       sourceE.buffer = audioBufferE;
       sourceE.connect(gainGateE);
@@ -291,6 +321,7 @@ document
       event.target.style.backgroundColor = "aqua";
       event.target.innerText = "stop everlasting";
       onOffE = true;
+      setCurrentAnalyzer(analyserE, "everlasting");
     } else {
       gainGateE.gain.setValueAtTime(gainGateE.gain.value, now);
       gainGateE.gain.linearRampToValueAtTime(0, now + 0.05);
@@ -301,5 +332,6 @@ document
 
       sourceE.stop();
       sourceE.disconnect();
+      stopVisualization();
     }
   });

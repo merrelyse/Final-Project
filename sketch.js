@@ -1,7 +1,149 @@
+// named all variables
+let analyserData = [];
+let currentAnalyzer = null;
+let isPlaying = false;
+let sensitivity;
+let sens;
+let audioHistory = new Array(360).fill(0);
+let activeTrack = "";
+let smoothingFactor = 0.85;
+let updateFrequency = 3;
+let frameCount = 0;
+let prevAudioLevel = 0;
+
 function setup() {
   createCanvas(700, 600);
+  //creates "random" values for each visualizer, but uses the same ones each time it's run
+  noiseSeed(42);
+  //initialize audio history
+  for (let i = 0; i < 360; i++) {
+    audioHistory[i] = 0;
+  }
+  //sensitivity slider
+  if (!document.querySelector("#sensitivity")) {
+    const sensitivitySlider = document.createElement("input");
+    sensitivitySlider.type = "range";
+    sensitivitySlider.id = "sensitivity";
+    sensitivitySlider.min = "0";
+    sensitivitySlider.max = "1";
+    sensitivitySlider.step = "0.01";
+    sensitivitySlider.value = "0.5";
+    document.body.appendChild(sensitivitySlider);
+  }
 }
 
 function draw() {
   background("pink");
+  //map sensitivity slider value to affect intensity
+  sensitivity = document.querySelector("#sensitivity").value;
+  sens = map(sensitivity, 0, 1, 0.5, 0.05);
+  //make visualization smoother by wrapping it in modules
+  frameCount = (frameCount + 1) % updateFrequency;
+  let newAudioValue = 0;
+  //only analyze audio if it's playing and update frames are running
+  if (isPlaying && currentAnalyzer && frameCount === 0) {
+    const bufferLength = currentAnalyzer.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    //analyze frequency data for these tracks only
+    if (activeTrack === "memory-machine" || activeTrack === "on-my-way-home") {
+      currentAnalyzer.getByteFrequencyData(dataArray);
+      //average frequencies
+      let sum = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        sum += dataArray[i];
+      }
+
+      let avgLevel = sum / bufferLength / 255;
+      //smooth audio level exponentially
+      newAudioValue =
+        prevAudioLevel * smoothingFactor + avgLevel * (1 - smoothingFactor);
+      //store value in audio history array
+      audioHistory.push(newAudioValue);
+      if (audioHistory.length > 360) {
+        audioHistory.shift();
+      }
+      //analyze "rhythm" (waveform over time)
+    } else if (activeTrack === "being" || activeTrack === "everlasting") {
+      currentAnalyzer.getByteTimeDomainData(dataArray);
+
+      let sum = 0;
+      //convert waveform into energy
+      for (let i = 0; i < bufferLength; i++) {
+        let normalized = dataArray[i] / 128.0 - 1.0;
+        sum += normalized * normalized;
+      }
+
+      let energy = sum / bufferLength;
+      //smooth energy and amplify for visibility
+      newAudioValue =
+        prevAudioLevel * smoothingFactor + energy * 3 * (1 - smoothingFactor);
+      //save value in audio history
+      audioHistory.push(newAudioValue);
+      if (audioHistory.length > 360) {
+        audioHistory.shift();
+      }
+    }
+  }
+  //draw circular visualizer
+  strokeWeight(3);
+  translate(width / 2, height / 2);
+  beginShape();
+  //use last value twice to smooth
+  let lastIndex = 359;
+  let r_last = map(audioHistory[lastIndex], 0, sens, 50, 180);
+  let x_last = r_last * cos(lastIndex);
+  let y_last = r_last * sin(lastIndex);
+  curveVertex(x_last, y_last);
+
+  for (let i = 0; i < 360; i++) {
+    let r = map(audioHistory[i], 0, sens, 50, 200);
+
+    let noiseValue = noise(i * 0.05, frameCount, 0.005) * 5;
+    r += noiseValue;
+
+    let x = r * cos(i);
+    let y = r * sin(i);
+    let colorMap = map(audioHistory[i], 0, sens, 130, 0);
+    colorMode(HSL);
+    stroke(colorMap, 85, 60);
+    curveVertex(x, y);
+
+    if (i % 45 === 0) {
+      curveVertex(x, y);
+    }
+  }
+
+  for (let i = 0; i < 3; i++) {
+    let r = map(audioHistory[i], 0, sens, 50, 180);
+    let x = r * cos(i);
+    let y = r * sin(i);
+    curveVertex(x, y);
+  }
+
+  endShape(CLOSE);
 }
+
+window.setCurrentAnalyzer = function (analyzer, trackName) {
+  currentAnalyzer = analyzer;
+  activeTrack = trackName;
+  isPlaying = true;
+
+  audioHistory = new Array(360).fill(0);
+  prevAudioLevel = 0;
+};
+
+window.stopVisualization = function () {
+  isPlaying = false;
+  currentAnalyzer = null;
+  activeTrack = "";
+
+  let fadeInterval = setInterval(() => {
+    for (let i = 0; i < audioHistory.length; i++) {
+      audioHistory[i] *= 0.9;
+    }
+    if (Math.max(...audioHistory) < 0.01) {
+      clearInterval(fadeInterval);
+      audioHistory = new Array(360).fill(0);
+    }
+  }, 50);
+};
