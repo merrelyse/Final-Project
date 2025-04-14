@@ -179,3 +179,5 @@ window.stopVisualization = function () {
     }
   }, 50);
 };
+
+//used Claude AI for help with debugging (more accurate than ChatGPT)
