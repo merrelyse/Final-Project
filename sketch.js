@@ -12,7 +12,10 @@ let frameCount = 0;
 let prevAudioLevel = 0;
 
 function setup() {
-  createCanvas(700, 600);
+  let canvas = createCanvas(700, 600);
+  canvas.style("display", "block");
+  canvas.style("margin", "0 auto");
+  clear();
 
   //creates "random" values for each visualizer, but uses the same ones each time it's run
   noiseSeed(42);
@@ -24,6 +27,19 @@ function setup() {
 
   //sensitivity slider
   if (!document.querySelector("#sensitivity")) {
+    const sliderContainer = document.createElement("div");
+    sliderContainer.style.textAlign = "center";
+    sliderContainer.style.margin = "10px auto";
+    sliderContainer.style.width = "200px";
+
+    const sensitivityLabel = document.createElement("label");
+    sensitivityLabel.htmlFor = "sensitivity";
+    sensitivityLabel.textContent = "sensitivity";
+    sensitivityLabel.style.display = "block";
+    sensitivityLabel.style.marginBottom = "5px";
+    sensitivityLabel.style.fontFamily = "cursive";
+    sensitivityLabel.style.fontSize = "18px";
+
     const sensitivitySlider = document.createElement("input");
     sensitivitySlider.type = "range";
     sensitivitySlider.id = "sensitivity";
@@ -31,13 +47,16 @@ function setup() {
     sensitivitySlider.max = "1";
     sensitivitySlider.step = "0.01";
     sensitivitySlider.value = "0.5";
-    document.body.appendChild(sensitivitySlider);
+    sensitivitySlider.style.width = "100%";
+
+    sliderContainer.appendChild(sensitivityLabel);
+    sliderContainer.appendChild(sensitivitySlider);
+    document.body.appendChild(sliderContainer);
   }
 }
 
 function draw() {
-  background("pink");
-
+  clear();
   //map sensitivity slider value to affect intensity
   sensitivity = document.querySelector("#sensitivity").value;
   sens = map(sensitivity, 0, 1, 0.5, 0.05);
@@ -127,7 +146,7 @@ function draw() {
     let y = r * sin(i);
 
     //match audio level to stroke color
-    let colorMap = map(audioHistory[i], 0, sens, 130, 0);
+    let colorMap = map(audioHistory[i], 0, sens, 270, 180);
     colorMode(HSL);
     stroke(colorMap, 85, 60);
 
@@ -181,3 +200,4 @@ window.stopVisualization = function () {
 };
 
 //used Claude AI for help with debugging (more accurate than ChatGPT)
+//visualizer adapted from Austin Zhang
