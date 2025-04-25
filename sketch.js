@@ -43,8 +43,8 @@ function setup() {
     const sensitivitySlider = document.createElement("input");
     sensitivitySlider.type = "range";
     sensitivitySlider.id = "sensitivity";
-    sensitivitySlider.min = "0";
-    sensitivitySlider.max = "1";
+    sensitivitySlider.min = "0.5";
+    sensitivitySlider.max = "1.09";
     sensitivitySlider.step = "0.01";
     sensitivitySlider.value = "0.5";
     sensitivitySlider.style.width = "100%";
