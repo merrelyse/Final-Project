@@ -110,6 +110,7 @@ const loadPlayAudioOMW = async function () {
 let sourceE;
 let analyserE;
 let gainGateE;
+
 const loadPlayAudioE = async function () {
   const file3 = await fetch("Everlasting.wav");
   const arrayBufferE = await file3.arrayBuffer();

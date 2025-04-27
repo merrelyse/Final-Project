@@ -199,5 +199,5 @@ window.stopVisualization = function () {
   }, 50);
 };
 
-//used Claude AI for help with debugging (more accurate than ChatGPT)
+//used Claude AI for help with debugging + specific needs/adaptions (fade, module wrap) (more accurate than ChatGPT)
 //visualizer adapted from Austin Zhang
